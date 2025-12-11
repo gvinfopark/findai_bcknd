@@ -2,7 +2,7 @@ from flask import Flask, request, session, render_template, jsonify
 from flask_cors import CORS
 import os
 import uuid
-from chatbot import MistralChatbot  # Make sure chatbot.py is in the same folder
+from chatbot import MistralChatbot
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
@@ -52,12 +52,18 @@ def chat():
     chat_session = session_store.setdefault(session_id, [])
 
     try:
-        # Get LangGraph memory
-        prev_state = chatbot.compiled_graph.get_state(
-            config={"configurable": {"thread_id": session_id}}
-        )
-        history = prev_state.values.get("history", []) if prev_state else []
+        # Get LangGraph memory state
+        config = {"configurable": {"thread_id": session_id}}
+        
+        # Try to get previous state
+        try:
+            prev_state = chatbot.compiled_graph.get_state(config)
+            history = prev_state.values.get("history", []) if prev_state and prev_state.values else []
+        except Exception:
+            # If no previous state, start with empty history
+            history = []
 
+        # Prepare input state
         inputs = {
             "question": user_message,
             "context": [],
@@ -66,13 +72,17 @@ def chat():
         }
 
         # RAG + Graph Execution
-        result = chatbot.compiled_graph.invoke(
-            inputs, config={"configurable": {"thread_id": session_id}}
-        )
+        result = chatbot.compiled_graph.invoke(inputs, config=config)
 
         answer = result.get("answer", "").strip()
         
+        if not answer:
+            answer = "I apologize, but I couldn't generate a response. Please try rephrasing your question."
+        
     except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"Chatbot error: {error_trace}")
         return jsonify({"error": f"Chatbot error: {str(e)}"}), 500
 
     # Save chat history
@@ -84,6 +94,32 @@ def chat():
         "answer": answer
     })
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+@app.route("/clear", methods=["POST"])
+def clear_session():
+    """Clear chat history for current session"""
+    session_id = session.get("session_id")
+    if session_id:
+        session_store[session_id] = []
+        # Clear LangGraph checkpointer state
+        config = {"configurable": {"thread_id": session_id}}
+        try:
+            # Reset the state by creating a new empty state
+            chatbot.compiled_graph.invoke({
+                "question": "",
+                "context": [],
+                "answer": "",
+                "history": []
+            }, config=config)
+        except Exception:
+            pass
+    return jsonify({"status": "success", "message": "Chat history cleared"})
 
+@app.route("/health", methods=["GET"])
+def health():
+    """Health check endpoint"""
+    return jsonify({"status": "healthy", "chatbot": "initialized"})
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    print(f"🚀 Starting Flask app on port {port}")
+    app.run(host="0.0.0.0", port=port, debug=False)
