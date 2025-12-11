@@ -1,15 +1,32 @@
+# Core build dependencies - must be first
+setuptools>=65.5.0
+wheel>=0.38.0
+
+# Flask and web framework
 flask==3.0.0
 flask-cors==4.0.0
 python-dotenv==1.0.0
+gunicorn==21.2.0
+
+# LangChain ecosystem
 langchain==0.1.0
 langchain-community==0.0.10
 langchain-core==0.1.10
 langchain-text-splitters==0.0.1
 langchain-mistralai==0.0.5
-faiss-cpu
+langgraph==0.0.20
+
+# Vector store and embeddings
+faiss-cpu==1.7.4
+
+# PDF processing
 pypdf==3.17.4
+
+# Data processing
 numpy==1.24.3
-gunicorn==21.2.0
-tensorflow-cpu==2.15.0
-langgraph==0.0.20a
+
+# Optional: Remove tensorflow if not needed to reduce build size
+# tensorflow-cpu==2.15.0
+
+# Type hints
 typing-extensions==4.9.0

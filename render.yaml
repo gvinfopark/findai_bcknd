@@ -1,10 +1,13 @@
 services:
   - type: web
-    name: findai-backend
+    name: mistral-chatbot
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn main:app --timeout 200 --workers 1 --threads 8
-    plan: free
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: gunicorn app:app
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
       - key: MISTRAL_API_KEY
         sync: false
+      - key: KMP_DUPLICATE_LIB_OK
+        value: TRUE
