@@ -1,0 +1,14 @@
+flask
+flask-cors
+python-dotenv
+langchain
+langchain-community
+langgraph
+langchain-core
+langchain-text-splitters
+langchain-mistralai
+faiss-cpu
+pypdf
+numpy
+gunicorn
+tensorflow-cpu
