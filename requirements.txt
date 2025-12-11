@@ -6,10 +6,10 @@ langchain-community==0.0.10
 langchain-core==0.1.10
 langchain-text-splitters==0.0.1
 langchain-mistralai==0.0.5
-faiss-cpu==1.7.4
+faiss-cpu
 pypdf==3.17.4
 numpy==1.24.3
 gunicorn==21.2.0
 tensorflow-cpu==2.15.0
-langgraph==0.0.20
+langgraph==0.0.20a
 typing-extensions==4.9.0
