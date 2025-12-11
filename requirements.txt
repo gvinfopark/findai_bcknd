@@ -3,7 +3,6 @@ flask-cors
 python-dotenv
 langchain
 langchain-community
-git+https://github.com/langgraph/langgraph.git@main#egg=langgraph
 langchain-core
 langchain-text-splitters
 langchain-mistralai
