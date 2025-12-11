@@ -4,9 +4,15 @@ import os
 import uuid
 from chatbot import MistralChatbot
 
+
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
+CORS(app, origins=[
+    "http://localhost:3000",
+    "https://findaii.vercel.app"
+], supports_credentials=True)
+
 app.secret_key = os.urandom(24)
+
 
 # Fix OpenBLAS if needed
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
